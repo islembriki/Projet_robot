@@ -1,10 +1,10 @@
-import java.time.LocalDateTime;
-import java.time.Duration;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.time.LocalDateTime;// Importation de la classe LocalDateTime qui gère les dates et heures
+import java.time.Duration;// Importation de la classe Duration qui gère les durées
+import java.time.format.DateTimeFormatter;// Importation de la classe DateTimeFormatter qui formate les dates
+import java.util.ArrayList;// Importation de la classe ArrayList qui gère les listes dynamiques
+import java.util.List;// Importation de la classe List qui est l'interface des listes
+import java.util.Timer;// Importation de la classe Timer qui gère les minuteries
+import java.util.TimerTask;// Importation de la classe TimerTask qui gère les tâches programmées
 public abstract class Robot {
     private String id;               // Identifiant unique du robot
     private int x;                   // Position X sur une grille 2D
@@ -20,7 +20,7 @@ public abstract class Robot {
     private int secondesAvantVeille; // Secondes d'inactivité avant d'entrer en mode veille
     private Timer timerVeille;       // Timer pour gérer le mode veille
     private boolean verificationVeilleActive; // Indique si la vérification du mode veille est active
-    public void activerModeEconomiseur() {
+    public void activerModeEconomiseur() {// Active le mode économie d'énergie
         if (enMarche && !economiserEnergie) {
             economiserEnergie = true;
             ajouterHistorique("Mode economie d'energie activé - attention les fonctionnalités sont limitées");
@@ -45,19 +45,19 @@ public abstract class Robot {
         this.historiqueActions = new ArrayList<>();
         this.economiserEnergie = false;
         this.modeVeille = false;
-        this.derniereMiseAJour = LocalDateTime.now();
-        this.secondesAvantVeille = secondesAvantVeille;
-        this.verificationVeilleActive = false;
-        this.timerVeille = new Timer(true); // Timer en tant que daemon
+        this.derniereMiseAJour = LocalDateTime.now();// Initialisation de la dernière mise à jour
+        this.secondesAvantVeille = secondesAvantVeille;// Délai d'inactivité avant le mode veille
+        this.verificationVeilleActive = false;// Indicateur de vérification du mode veille
+        this.timerVeille = new Timer(true); // Timer en tant que daemon pour ne pas bloquer la fermeture de l'application
         ajouterHistorique("Robot créé");
     }
-    protected void mettreAJourActivite() {
+    protected void mettreAJourActivite() {// Met à jour l'activité du robot fonction fondamentale pour toujours activer le mode veille lorsque c'est detecte 
         this.derniereMiseAJour = LocalDateTime.now();
         if (modeVeille) {
             desactiverModeVeille();
         }
     }
-    public void activerModeVeille() {
+    public void activerModeVeille() {// Active le mode veille manuellement
         if (enMarche && !modeVeille) {
             modeVeille = true;
             debutVeille = LocalDateTime.now();

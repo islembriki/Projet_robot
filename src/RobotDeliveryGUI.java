@@ -4,66 +4,77 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 public class RobotDeliveryGUI extends JFrame {
-    private JPanel cardPanel;
-    private CardLayout cardLayout;
-    private RobotLivraison robot;
-    private static final int GRID_SIZE = 20;
-    private static final int CELL_SIZE = 30;
-    private static final String CARD_SETUP = "setup";
-    private static final String CARD_DELIVERY = "delivery";
-    private static final String CARD_COMPLETE = "complete";
-    private RobotFacePanel robotFacePanel;
-    private JTextField colisField;
-    private JTextField destinationField;
-    private JTextField reseauField;
-    private JCheckBox ecoNumeriqueCheckBox;
-    private EnergyBar energyBar;
-    private EnergyBar kersBar;
-    private JButton connectButton;
-    private JButton startButton;
-    private GridPanel gridPanel;
-    private LogPanel logPanel;
-    private EnergyBar deliveryEnergyBar;
-    private EnergyBar deliveryKersBar;
-    private JButton ecoModeButton;
-    private JLabel idleStateLabel;
-    private JLabel kersStateLabel;
-    private JLabel ecoNumeriqueStateLabel;
-    private JButton newDeliveryButton;
-    private JButton stopButton;
+    private JPanel cardPanel;// Panel principal pour les cartes
+    private CardLayout cardLayout;//gestionnaire de cartes 
+    private RobotLivraison robot;// Instance de RobotLivraison qui va executer les actions 
+    private static final int GRID_SIZE = 20;//taille de grille ou le robot vas se deplacer 
+    private static final int CELL_SIZE = 30;//taille de chaque cellule en pixels 
+    private static final String CARD_SETUP = "setup";//ecran de verification 
+    private static final String CARD_DELIVERY = "delivery";//ecran de livraison 
+    private static final String CARD_COMPLETE = "complete";//ecran de fin de livraison 
+    private RobotFacePanel robotFacePanel;// Panneau pour afficher le visage du robot
+    private JTextField colisField;// Champ pour entrer le nom du colis
+    private JTextField destinationField;// Champ pour entrer la destination
+    private JTextField reseauField; // Champ pour entrer le réseau
+    private JCheckBox ecoNumeriqueCheckBox;// Case à cocher pour le mode éco-numérique
+    private EnergyBar energyBar; // Barre d'énergie principale
+    private EnergyBar kersBar; // Barre d'énergie KERS (système de récupération d'énergie cinétique)
+    private JButton connectButton;// Bouton pour se connecter
+    private JButton startButton;// Bouton pour démarrer la livraison
+    private GridPanel gridPanel;//panneau pour afficher la grille de déplacement
+    private LogPanel logPanel;// Panneau pour afficher l'historique des actions
+    private EnergyBar deliveryEnergyBar;// Barre d'énergie dans l'écran de livraison
+    private EnergyBar deliveryKersBar;// Barre d'énergie KERS dans l'écran de livraison
+    private JButton ecoModeButton; // Bouton pour activer/désactiver le mode économiseur
+    private JLabel idleStateLabel;// Étiquette pour afficher l'état du robot (actif/veille
+    private JLabel kersStateLabel;// Étiquette pour afficher l'état du KERS
+    private JLabel ecoNumeriqueStateLabel;// Étiquette pour afficher l'état du mode éco-numériqu
+    private JButton newDeliveryButton; // Bouton pour démarrer une nouvelle livraison
+    private JButton stopButton;// Bouton pour arrêter l'application
     public RobotDeliveryGUI() {
+        // Initialisation du robot avec un ID, une position initiale (0,0) et 100% d'énergie
         robot = new RobotLivraison("DEL-001", 0, 0, 100);
-        setTitle("Robot Delivery System");
+        setTitle("Gestion de robot");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 600);
         setLocationRelativeTo(null);
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
+        //creation des differents cartes d' affichages et l'ajout au cardpanel 
         createSetupCard();
         createDeliveryCard();
         createCompletionCard();
         add(cardPanel);
         cardLayout.show(cardPanel, CARD_SETUP);
+        //  // Démarre le timer pour mettre à jour l'interface régulièrement qui est indispensable pour le mode idle 
         startUpdateTimer();
     }
+    //l'ecran de configuration 
     private void createSetupCard() {
+        //panneau avec borderlayout 
         JPanel setupCard = new JPanel(new BorderLayout(20, 20));
-        setupCard.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        setupCard.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));//marge autour de panneau
+        // Panneau gauche pour les barres d'énergie 
         JPanel leftPanel = new JPanel(new GridLayout(2, 1, 0, 20));
         leftPanel.setPreferredSize(new Dimension(100, 300));
+        // Création du panneau pour la barre d'énergie principale
         JPanel energyPanel = new JPanel(new BorderLayout());
         JLabel energyLabel = new JLabel("Énergie", JLabel.CENTER);
         energyBar = new EnergyBar(Color.GREEN);
         energyPanel.add(energyLabel, BorderLayout.NORTH);
         energyPanel.add(energyBar, BorderLayout.CENTER);
+        // Création du panneau pour la barre d'énergie KERS 
         JPanel kersPanel = new JPanel(new BorderLayout());
         JLabel kersLabel = new JLabel("KERS", JLabel.CENTER);
         kersBar = new EnergyBar(Color.ORANGE);
         kersPanel.add(kersLabel, BorderLayout.NORTH);
         kersPanel.add(kersBar, BorderLayout.CENTER);
+        // Ajout des panneaux d'énergie au panneau gauche
         leftPanel.add(energyPanel);
         leftPanel.add(kersPanel);
+        // Panneau central pour le visage du robot et les champs de saisie
         JPanel centerPanel = new JPanel(new BorderLayout(20, 20));
+        // Création du panneau pour le visage du robot
         robotFacePanel = new RobotFacePanel();
         robotFacePanel.setPreferredSize(new Dimension(200, 200));
         JPanel inputPanel = new JPanel(new GridLayout(4, 2, 10, 10));
@@ -207,7 +218,7 @@ public class RobotDeliveryGUI extends JFrame {
             }
         }
     }
-    private void startUpdateTimer() {
+    private void startUpdateTimer() {//la fonction fondamentale
     final boolean[] kersInUse = {false};
     Timer timer = new Timer(500, e -> {
         energyBar.setValue(robot.getEnergie());
@@ -254,7 +265,7 @@ public class RobotDeliveryGUI extends JFrame {
             setBorder(BorderFactory.createLineBorder(new Color(139, 69, 19), 3));
             addMouseMotionListener(new MouseMotionAdapter() {
                 @Override
-                public void mouseMoved(MouseEvent e) {
+                public void mouseMoved(MouseEvent e) {// Met à jour la position de la cible des yeux
                     eyeTarget = e.getPoint();
                     repaint();
                 }
@@ -322,7 +333,7 @@ public class RobotDeliveryGUI extends JFrame {
             g2d.fillRect(0, height - fillHeight, width, fillHeight);
             g2d.setColor(Color.BLACK);
             String valueText = value + "%";
-            FontMetrics fm = g2d.getFontMetrics();
+            FontMetrics fm = g2d.getFontMetrics();// Obtenir les métriques de la police
             int textWidth = fm.stringWidth(valueText);
             int textHeight = fm.getHeight();
             g2d.drawString(valueText, width/2 - textWidth/2, height/2 + textHeight/4);
@@ -478,9 +489,9 @@ public int getDestY() {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());//le look and feel du systeme qui est plus joli
             } catch (Exception e) {
-                e.printStackTrace();
+                e.printStackTrace();// Afficher l'exception dans la console
             }
             RobotDeliveryGUI gui = new RobotDeliveryGUI();
             gui.setVisible(true);
