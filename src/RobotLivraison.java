@@ -1,4 +1,5 @@
 import java.util.Scanner;
+// j'ai tout simplement implemente des scanners ici pour tester mon code s'il fonctionne dans une classe de test que j'ai supprime apres la verification que tout marche
 public class RobotLivraison extends RobotConnecte {
     private String colisActuel;          // Nom ou description du colis actuellement transporté
     private String destination;          // Lieu où le colis doit être livré
@@ -25,12 +26,13 @@ public class RobotLivraison extends RobotConnecte {
         this.energieRecuperee = 0;       // Initialisation de l'énergie KERS à 0
     }
     @Override
-    public void effectuerTache() throws RobotException {
+    public void effectuerTache() throws RobotException {// Effectuer une tâche de livraison
         // Vérifier si le robot est démarré
         if (!isEnMarche()) {
             throw new RobotException("Le robot doit être démarré pour effectuer une tâche");
         }
-        mettreAJourActivite();
+        mettreAJourActivite();// Mettre à jour l'activité
+        // Vérifier si le robot est en livraison
         if (enLivraison) {
             Scanner scanner = new Scanner(System.in);
             ajouterHistorique("En livraison vers " + destination);
@@ -60,9 +62,10 @@ public class RobotLivraison extends RobotConnecte {
                 ajouterHistorique("En attente de colis");
             }
         }
-        gestionIntelligenteDEnergie();
+        gestionIntelligenteDEnergie();// Gérer l'énergie de manière intelligente
+        // Vérifier si le robot doit passer en mode économie d'énergie
     }
-    public void faireLivraison(int destX, int destY) throws RobotException {
+    public void faireLivraison(int destX, int destY) throws RobotException {// Effectuer la livraison d'un colis
         if (!enLivraison || colisActuel == null) {
             throw new RobotException("Aucun colis à livrer");
         }
@@ -80,11 +83,12 @@ public class RobotLivraison extends RobotConnecte {
         }
     }
     @Override
-    public void consommerEnergie(int quantite) {
+    public void consommerEnergie(int quantite) {//surcharger la methode consommerenrgie de la classe mere
     if (this.isEnModeEconomiseur() && this.isEnMarche()) {
         quantite = (quantite * 90) / 100; // Réduit la consommation d'énergie de 10% en mode économie
     }
-    int nouvelleEnergie = Math.max(0, this.getEnergie() - quantite);
+    int nouvelleEnergie = Math.max(0, this.getEnergie() - quantite);// Assurez-vous que l'énergie ne tombe pas en dessous de 0
+    // Vérifier si l'énergie est suffisante pour la consommation
     this.setEnergie(nouvelleEnergie);
     ajouterHistorique("Consommation d'énergie : -" + quantite + "%, niveau actuel : " + this.getEnergie()  + "%");
     this.incrementerHeuresUtilisation(quantite / 10);
@@ -96,7 +100,7 @@ public class RobotLivraison extends RobotConnecte {
         activerModeEconomiseur();
         ajouterHistorique("Mode économie d'énergie activé : niveau d'énergie faible (" + this.getEnergie()  + "%)");
     }
-    if (this.getEnergie()  == 0 && this.isEnMarche()) {
+    if (this.getEnergie()  == 0 && this.isEnMarche()) {// Vérifier si le robot est à l'arrêt
         if (this instanceof RobotLivraison) {
             RobotLivraison robotLivraison = (RobotLivraison) this;
             if (robotLivraison.getEnergieRecuperee() > 0) {
@@ -114,7 +118,7 @@ public class RobotLivraison extends RobotConnecte {
     }
 }
     @Override
-    public void deplacer(int nouveauX, int nouveauY) throws RobotException {
+    public void deplacer(int nouveauX, int nouveauY) throws RobotException {// Déplacer le robot vers de nouvelles coordonnées
         if (!isEnMarche()) {
             throw new RobotException("Le robot doit être démarré pour se déplacer");
         }
@@ -238,7 +242,7 @@ public class RobotLivraison extends RobotConnecte {
             throw new EnergieInsuffisanteException("Énergie insuffisante: " + getEnergie() + "%, requis: " + energieRequise + "%");
         }
     }
-    private void recupererEnergieCinetique(double distance) {
+    private void recupererEnergieCinetique(double distance) {//recovery system l energie cinetique emie est retransformee en une enrgie reutilisable
         // Récupérer 20% de l'énergie dépensée pour le déplacement
         int energieRecupereeActuelle = (int)(distance * 0.2); // 0.2 unité récupérée par unité de distance
         // Ajouter l'énergie récupérée au super condensateur (avec limite max)
@@ -246,7 +250,7 @@ public class RobotLivraison extends RobotConnecte {
         
         ajouterHistorique("KERS: " + energieRecupereeActuelle + "% d'énergie récupérée (Total: " + energieRecuperee + "%)");
     }
-    public void utiliserEnergieRecuperee(int quantite) throws RobotException {
+    public void utiliserEnergieRecuperee(int quantite) throws RobotException {// Utiliser une quantité d'énergie récupérée
         if (energieRecuperee <= 0) {
             throw new RobotException("Aucune énergie récupérée disponible dans le condensateur KERS");
         }
@@ -270,7 +274,7 @@ public class RobotLivraison extends RobotConnecte {
         } 
         utiliserEnergieRecuperee(energieRecuperee);
     }
-    public void gestionIntelligenteDEnergie() {
+    public void gestionIntelligenteDEnergie() {// Gérer l'énergie de manière intelligente
         // Si l'énergie est très faible (moins de 10%) et qu'il y a de l'énergie KERS disponible
         if (getEnergie() < 10 && energieRecuperee > 0) {
             try {
@@ -288,11 +292,7 @@ public class RobotLivraison extends RobotConnecte {
         // Enlever le dernier crochet pour ajouter les informations de livraison et KERS
         baseInfo = baseInfo.substring(0, baseInfo.length() - 1);
         // Ajouter les informations de livraison et KERS
-        return baseInfo + 
-               ", Colis: " + (colisActuel != null ? "'" + colisActuel + "'" : "Aucun") + 
-               ", Destination: " + (destination != null ? destination : "Aucune") + 
-               ", En livraison: " + (enLivraison ? "Oui" : "Non") +
-               ", Énergie KERS: " + energieRecuperee + "%" + "]";
+        return baseInfo +  ", Colis: " + (colisActuel != null ? "'" + colisActuel + "'" : "Aucun") + ", Destination: " + (destination != null ? destination : "Aucune") +  ", En livraison: " + (enLivraison ? "Oui" : "Non") +  ", Énergie KERS: " + energieRecuperee + "%" + "]";
     }
     // Getters et setters supplémentaires
     public String getColisActuel() {
