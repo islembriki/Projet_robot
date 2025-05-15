@@ -72,11 +72,12 @@ public abstract class Robot {
             Duration dureeVeille = Duration.between(debutVeille, LocalDateTime.now());
             long minutesEnVeille = dureeVeille.toMinutes();
             if (minutesEnVeille > 0) {
-                consommerEnergie((int) minutesEnVeille);
+                consommerEnergie((int) minutesEnVeille);//consommation d'énergie pendant la veille est 1% par minute
             }
             ajouterHistorique("Mode veille désactivé - durée: " + dureeVeille.toMinutes() + " minutes");
         }
     }
+    //vérification du mode veille 
     private void demarrerVerificationVeille() {
         if (!verificationVeilleActive && enMarche) {
             verificationVeilleActive = true;
@@ -97,6 +98,7 @@ public abstract class Robot {
             ajouterHistorique("Système de vérification du mode veille désactivé");
         }
     }
+    // Vérifie si le robot doit entrer en mode veille
     private void verifierModeVeille() {
         if (enMarche && !modeVeille) {
             Duration dureeInactivite = Duration.between(derniereMiseAJour, LocalDateTime.now());
@@ -109,6 +111,7 @@ public abstract class Robot {
             }
         }
     }
+    // Consommation d'énergie en mode veille
     private void demarrerConsommationVeille() {
         timerVeille.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -122,22 +125,26 @@ public abstract class Robot {
             }
         }, 60000, 60000); // Exécuter toutes les minutes (60000 ms)
     }
+    // Enregistre l'historique des actions
     protected void ajouterHistorique(String action) {
         LocalDateTime maintenant = LocalDateTime.now();
         DateTimeFormatter format = DateTimeFormatter.ofPattern("dd MMMM yyyy HH:mm:ss");
         String dateFormatee = maintenant.format(format);
         historiqueActions.add(dateFormatee + " " + action);
     }
+    // Vérifie si l'énergie est suffisante pour effectuer une tâche
     protected void verifierEnergie(int energieRequise) throws EnergieInsuffisanteException {
         if (energie < energieRequise) {
             throw new EnergieInsuffisanteException("Énergie insuffisante : " + energie + "% disponible, " + energieRequise + "% requis");
         }
     }
+    // Vérifie si une maintenance est requise
     protected void verifierMaintenance() throws MaintenanceRequiseException {
         if (heuresUtilisation >= 1000) {
             throw new MaintenanceRequiseException("Maintenance requise après " + heuresUtilisation + " heures d'utilisation");
         }
     }
+    // Vérifie si le robot est en marche
     public void demarrer() throws RobotException {
         try {
             verifierEnergie(10); // Nécessite au moins 10% d'énergie
@@ -151,6 +158,7 @@ public abstract class Robot {
             throw new RobotException("Impossible de démarrer le robot : " + e.getMessage(), e);
         }
     }
+    // Arrête le robot
     public void arreter() {
         if (modeVeille) {
             desactiverModeVeille();
@@ -179,6 +187,7 @@ public abstract class Robot {
             ajouterHistorique("Arrêt automatique : niveau d'énergie à 0%");
         }
     }
+    // Recharge l'énergie du robot(j 'ai pas utilise cette fonction dans le code pour une presentation plus realistique mais on peut l'implementer)
     public void recharger(int quantite) {
         int ancienneEnergie = energie;
         energie = Math.min(100, energie + quantite);
@@ -186,8 +195,8 @@ public abstract class Robot {
         ajouterHistorique("Recharge d'énergie : +" + energieAjoutee + "%, niveau actuel : " + energie + "%");
         mettreAJourActivite();
     }
-    public abstract void deplacer(int nouveauX, int nouveauY) throws RobotException;
-    public abstract void effectuerTache() throws RobotException;
+    public abstract void deplacer(int nouveauX, int nouveauY) throws RobotException;// Déplace le robot à une nouvelle position
+    public abstract void effectuerTache() throws RobotException;// Effectue une tâche spécifique
     public String getHistorique() {
         StringBuilder sb = new StringBuilder("Historique des actions du robot " + this.id + ":\n");
         for (String action : historiqueActions) {
@@ -195,6 +204,7 @@ public abstract class Robot {
         }
         return sb.toString();
     }
+    // Affiche l'état actuel du robot
     @Override
     public String toString() {
         String etat = enMarche ? (modeVeille ? "En veille" : "Actif") : "Éteint";
