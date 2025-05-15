@@ -13,7 +13,7 @@ public abstract class RobotConnecte extends Robot implements Connectable {
         freqCommunication = 60; // Communication toutes les 60 secondes au lieu de 5 secondes
         ajouterHistorique("Mode Éco-Numérique activé - Réduction de l'empreinte numérique");
     }
-     public void setFrequenceCommunication(int secondes) throws RobotException {
+     public void setFrequenceCommunication(int secondes) throws RobotException {// Définit la fréquence de communication en secondes 
         if (!modeEcoNumerique) {
             throw new RobotException("Le mode Éco-Numérique doit être activé");
         }
@@ -25,13 +25,14 @@ public abstract class RobotConnecte extends Robot implements Connectable {
         freqCommunication = secondes;
         ajouterHistorique("Fréquence de communication mise à jour: " + secondes + " secondes");
     }
-    public RobotConnecte(String id, int x, int y, int energie) {
+    public RobotConnecte(String id, int x, int y, int energie) {    /// Constructeur de la classe RobotConnecte
         super(id, x, y, energie);
         this.connecte = false;
         this.reseauConnecte = null;
     }
     @Override
-    public void connecter(String reseau) throws RobotException {
+    public void connecter(String reseau) throws RobotException {// Méthode pour connecter le robot à un réseau
+        // Vérifier si le robot est déjà connecté
         try {
             // Vérifier si le robot dispose de suffisamment d'énergie (5%)
             verifierEnergie(5);
@@ -52,13 +53,11 @@ public abstract class RobotConnecte extends Robot implements Connectable {
         if (connecte) {
             // Enregistrer l'action dans l'historique
             ajouterHistorique("Déconnexion du réseau : " + reseauConnecte);
-            
             // Mettre à jour les attributs
             this.connecte = false;
             this.reseauConnecte = null;
-            
             // Mettre à jour l'activité pour éviter le mode veille
-            mettreAJourActivite();
+            mettreAJourActivite();//comme on a dit dans la classe robot cette methode est fondamentale pour eviter le mode veille
         }
     }
     @Override
@@ -103,6 +102,13 @@ public abstract class RobotConnecte extends Robot implements Connectable {
         throw new RobotException("Impossible d'envoyer les données : " + e.getMessage(), e);
     }
 }
+@Override
+    public String toString() {
+        String baseInfo = super.toString();
+        return baseInfo.substring(0, baseInfo.length() - 1) + ", Connecté: " + 
+               (connecte ? "Oui (" + reseauConnecte + ")" : "Non") + "]";
+    }
+//getter et setter et verfications
     public boolean isConnecte() {
         return connecte;
     }
@@ -113,12 +119,7 @@ public abstract class RobotConnecte extends Robot implements Connectable {
     public String getReseauConnecte() {
         return reseauConnecte;
     }
-    @Override
-    public String toString() {
-        String baseInfo = super.toString();
-        return baseInfo.substring(0, baseInfo.length() - 1) + ", Connecté: " + 
-               (connecte ? "Oui (" + reseauConnecte + ")" : "Non") + "]";
-    }
+    
     public boolean isEnModeEcoNumerique() {
         return modeEcoNumerique;
     }
