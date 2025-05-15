@@ -77,6 +77,7 @@ public class RobotDeliveryGUI extends JFrame {
         // Création du panneau pour le visage du robot
         robotFacePanel = new RobotFacePanel();
         robotFacePanel.setPreferredSize(new Dimension(200, 200));
+        // Création du panneau pour les champs de saisie
         JPanel inputPanel = new JPanel(new GridLayout(4, 2, 10, 10));
         inputPanel.add(new JLabel("Colis à transporter:"));
         colisField = new JTextField();
@@ -92,6 +93,7 @@ public class RobotDeliveryGUI extends JFrame {
         inputPanel.add(ecoNumeriqueCheckBox);
         centerPanel.add(robotFacePanel, BorderLayout.CENTER);
         centerPanel.add(inputPanel, BorderLayout.SOUTH);
+        // Panneau pour les boutons de connexion et de démarrage
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         connectButton = new JButton("Se connecter");
         connectButton.addActionListener(e -> connectRobot());
@@ -100,18 +102,23 @@ public class RobotDeliveryGUI extends JFrame {
         startButton.addActionListener(e -> startDelivery());
         buttonPanel.add(connectButton);
         buttonPanel.add(startButton);
+        // Ajout des panneaux au panneau principal
         setupCard.add(leftPanel, BorderLayout.WEST);
         setupCard.add(centerPanel, BorderLayout.CENTER);
         setupCard.add(buttonPanel, BorderLayout.SOUTH);
         cardPanel.add(setupCard, CARD_SETUP);
     }
     private void createDeliveryCard() {
+        // Panneau pour l'écran de livraison
+        // Panneau principal avec un BorderLayout
         JPanel deliveryCard = new JPanel(new BorderLayout(10, 10));
         deliveryCard.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         gridPanel = new GridPanel();
         JPanel bottomPanel = new JPanel(new BorderLayout(10, 0));
+        // Panneau pour l'historique des actions et les informations de statut
         logPanel = new LogPanel();
         logPanel.setPreferredSize(new Dimension(400, 200));
+        // Panneau pour les barres d'énergie de livraison
         JPanel statusPanel = new JPanel(new GridLayout(5, 1, 5, 5));
         JPanel deliveryEnergyPanel = new JPanel(new BorderLayout(5, 5));
         deliveryEnergyPanel.add(new JLabel("Énergie:"), BorderLayout.WEST);
@@ -121,11 +128,13 @@ public class RobotDeliveryGUI extends JFrame {
         deliveryKersPanel.add(new JLabel("KERS:"), BorderLayout.WEST);
         deliveryKersBar = new EnergyBar(Color.ORANGE);
         deliveryKersPanel.add(deliveryKersBar, BorderLayout.CENTER);
+        // Bouton pour activer/désactiver le mode économiseur d'énergie
         ecoModeButton = new JButton("Activer mode économiseur d'énergie");
         ecoModeButton.addActionListener(e -> toggleEcoMode());
         idleStateLabel = new JLabel("État: Actif");
         kersStateLabel = new JLabel("KERS: Non utilisé");
         ecoNumeriqueStateLabel = new JLabel("Éco-Numérique: Désactivé");
+        // Ajout des composants au panneau de statut
         statusPanel.add(deliveryEnergyPanel);
         statusPanel.add(deliveryKersPanel);
         statusPanel.add(ecoModeButton);
@@ -138,6 +147,8 @@ public class RobotDeliveryGUI extends JFrame {
         cardPanel.add(deliveryCard, CARD_DELIVERY);
     }
     private void createCompletionCard() {
+        // Panneau pour l'écran de livraison
+        // Panneau principal avec un BorderLayout
         JPanel completionCard = new JPanel(new BorderLayout());
         completionCard.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         JLabel completionLabel = new JLabel("Livraison effectuée!", JLabel.CENTER);
@@ -150,23 +161,26 @@ public class RobotDeliveryGUI extends JFrame {
             robot.arreter();
             System.exit(0);
         });
+        // Ajout des boutons au panneau
         buttonPanel.add(newDeliveryButton);
         buttonPanel.add(stopButton);
         completionCard.add(completionLabel, BorderLayout.CENTER);
         completionCard.add(buttonPanel, BorderLayout.SOUTH);
         cardPanel.add(completionCard, CARD_COMPLETE);
     }
-    private void connectRobot() {
-        String reseau = reseauField.getText().trim();
+    private void connectRobot() {//// Méthode pour connecter le robot au réseau
+        String reseau = reseauField.getText().trim();// Récupération du nom du réseau depuis le champ de texte
         if (reseau.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Veuillez entrer un nom de réseau", "Erreur", JOptionPane.ERROR_MESSAGE);
             return;
         }
         try {
+            // Démarrage du robot s'il n'est pas déjà en marche
             if (!robot.isEnMarche()) {
                 robot.demarrer();
             }
-            robot.connecter(reseau);
+            robot.connecter(reseau);// Connexion du robot au réseau
+            // Activation du mode éco-numérique si la case est cochée
             if (ecoNumeriqueCheckBox.isSelected()) {
                 try {
                     robot.activerModeEcoNumerique();
@@ -174,7 +188,7 @@ public class RobotDeliveryGUI extends JFrame {
                     logPanel.addLog("Erreur: " + e.getMessage());
                 }
             }
-            robotFacePanel.setSmiling(true);
+            robotFacePanel.setSmiling(true);// Affichage du sourire du robot
             startButton.setEnabled(true);
             connectButton.setEnabled(false);
         } catch (RobotException e) {
@@ -182,6 +196,7 @@ public class RobotDeliveryGUI extends JFrame {
         }
     }
     private void startDelivery() {
+        // Méthode pour démarrer la livraison
         String colis = colisField.getText().trim();
         String destination = destinationField.getText().trim();
         if (colis.isEmpty() || destination.isEmpty()) {
@@ -194,11 +209,10 @@ public class RobotDeliveryGUI extends JFrame {
             cardLayout.show(cardPanel, CARD_DELIVERY);
             updateLog();
         } catch (RobotException e) {
-            JOptionPane.showMessageDialog(this, "Erreur lors du chargement du colis: " + e.getMessage(), 
-                                        "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Erreur lors du chargement du colis: " + e.getMessage(),  "Erreur", JOptionPane.ERROR_MESSAGE);
         }
     }
-    private void toggleEcoMode() {
+    private void toggleEcoMode() {// Méthode pour activer/désactiver le mode économiseur d'énergie
         if (robot.isEnMarche()) {
             if (ecoModeButton.getText().contains("Activer")) {
                 robot.activerModeEconomiseur();
@@ -210,7 +224,7 @@ public class RobotDeliveryGUI extends JFrame {
             updateLog();
         }
     }
-    private void updateLog() {
+    private void updateLog() {// Met à jour l'historique des actions
         logPanel.clear();
         for (String line : robot.getHistorique().split("\n")) {
             if (!line.isEmpty() && !line.startsWith("Historique des actions")) {
@@ -218,6 +232,8 @@ public class RobotDeliveryGUI extends JFrame {
             }
         }
     }
+    // Démarre un timer pour mettre à jour l'interface utilisateur
+    // toutes les 500 millisecondes
     private void startUpdateTimer() {//la fonction fondamentale
     final boolean[] kersInUse = {false};
     Timer timer = new Timer(500, e -> {
@@ -255,9 +271,9 @@ public class RobotDeliveryGUI extends JFrame {
             }
         }
     });
-    timer.start();
+    timer.start();// Démarre le timer
 }
-    class RobotFacePanel extends JPanel {
+    class RobotFacePanel extends JPanel {// Panneau pour afficher le visage du robot
         private boolean smiling = false;
         private Point eyeTarget = new Point(0, 0);
         public RobotFacePanel() {
@@ -276,7 +292,7 @@ public class RobotDeliveryGUI extends JFrame {
             repaint();
         }
         @Override
-        protected void paintComponent(Graphics g) {
+        protected void paintComponent(Graphics g) {// Dessine le visage du robot
             super.paintComponent(g);
             Graphics2D g2d = (Graphics2D) g;
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -309,7 +325,7 @@ public class RobotDeliveryGUI extends JFrame {
             }
         }
     }
-    class EnergyBar extends JPanel {
+    class EnergyBar extends JPanel {// Panneau pour afficher la barre d'énergie
         private int value = 0;
         private Color barColor;
         public EnergyBar(Color barColor) {
@@ -339,7 +355,7 @@ public class RobotDeliveryGUI extends JFrame {
             g2d.drawString(valueText, width/2 - textWidth/2, height/2 + textHeight/4);
         }
     }
-    class GridPanel extends JPanel {
+    class GridPanel extends JPanel {// Panneau pour afficher la grille de déplacement et ajouter les events llisteners de mvt
         private int robotX = 0;
         private int robotY = 0;
         private int destX = 10;
@@ -356,7 +372,7 @@ public class RobotDeliveryGUI extends JFrame {
                 }
             });
         }
-        public void setupDelivery() {
+        public void setupDelivery() {// Méthode pour configurer la livraison
             robotX = 0;
             robotY = 0;
             destX = 5 + (int)(Math.random() * (GRID_SIZE - 5));
@@ -364,7 +380,7 @@ public class RobotDeliveryGUI extends JFrame {
             deliveryActive = true;
             repaint();
         }
-        private void moveRobot(int newX, int newY) {
+        private void moveRobot(int newX, int newY) {// Méthode pour déplacer le robot
             if (newX < 0 || newX >= GRID_SIZE || newY < 0 || newY >= GRID_SIZE) {
                 return;
             }
@@ -395,7 +411,7 @@ public class RobotDeliveryGUI extends JFrame {
             }
         }
         @Override
-        protected void paintComponent(Graphics g) {
+        protected void paintComponent(Graphics g) {// Dessine la grille et le robot
             super.paintComponent(g);
             Graphics2D g2d = (Graphics2D) g;
             g2d.setColor(Color.LIGHT_GRAY);
@@ -403,7 +419,7 @@ public class RobotDeliveryGUI extends JFrame {
                 g2d.drawLine(i * CELL_SIZE, 0, i * CELL_SIZE, GRID_SIZE * CELL_SIZE);
                 g2d.drawLine(0, i * CELL_SIZE, GRID_SIZE * CELL_SIZE, i * CELL_SIZE);
             }
-            if (deliveryActive) {
+            if (deliveryActive) {// Dessine le robot et la destination
                 g2d.setColor(Color.RED);
                 int destinationSize = CELL_SIZE;
                 long currentTime = System.currentTimeMillis();
@@ -430,7 +446,7 @@ public class RobotDeliveryGUI extends JFrame {
                 g2d.drawString(destCoords, 10, 20);
             }
         }
-        private void drawArrow(Graphics2D g2d, int x1, int y1, int x2, int y2, Color color) {
+        private void drawArrow(Graphics2D g2d, int x1, int y1, int x2, int y2, Color color) {// Dessine une flèche indiquant la direction du robot  
             g2d.setColor(color);
             g2d.setStroke(new BasicStroke(2f));
             g2d.drawLine(x1, y1, x2, y2);
@@ -456,7 +472,7 @@ public int getDestY() {
     return destY;
 }
     }
-    class LogPanel extends JPanel {
+    class LogPanel extends JPanel {// Panneau pour afficher l'historique des actions
         private JTextArea logArea;
         private List<String> logEntries;
         public LogPanel() {
@@ -486,7 +502,9 @@ public int getDestY() {
             logArea.setCaretPosition(logArea.getDocument().getLength());
         }
     }
-    public static void main(String[] args) {
+    public static void main(String[] args) {// Point d'entrée de l'application
+        // Utilisation de SwingUtilities.invokeLater pour s'assurer que l'interface utilisateur est créée sur le thread de dispatching des événements
+        // Cela garantit que l'interface utilisateur est thread-safe    
         SwingUtilities.invokeLater(() -> {
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());//le look and feel du systeme qui est plus joli
